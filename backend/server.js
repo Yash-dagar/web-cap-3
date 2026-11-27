@@ -15,7 +15,24 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 // allow the React app to call this API
-app.use(cors({ origin: process.env.CLIENT_URL }));
+const allowedOrigins = [
+    (process.env.CLIENT_URL || '').replace(/\/$/, ''),
+    'http://localhost:5173',
+];
+
+app.use(cors({
+    origin: (origin, callback) => {
+        if (
+            !origin ||
+            allowedOrigins.includes(origin) ||
+            /^https:\/\/web-cap-3.*\.vercel\.app$/.test(origin)
+        ) {
+            callback(null, true);
+        } else {
+            callback(null, false);
+        }
+    },
+}));
 app.use(express.json());
 
 app.get('/', (req, res) => {
